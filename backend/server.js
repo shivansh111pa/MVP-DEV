@@ -11,6 +11,7 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+const serverless = require("serverless-http");
 
 const { developerData, pullRequests, issues, deployments, bugs } = require("./data/mockData");
 const {
@@ -167,4 +168,7 @@ if (process.env.NODE_ENV === "production") {
 app.listen(PORT, () => {
   console.log(`✅ DevPulse backend running on port ${PORT}`);
 });
+
+// Export for serverless environments (like Netlify)
+module.exports.handler = serverless(app);
 
