@@ -4,6 +4,10 @@
   "private": true,
   "scripts": {
     "start": "node backend/server.js",
+    "dev": "concurrently \"npm start --prefix backend\" \"npm start --prefix frontend\"",
     "build": "npm install --prefix backend && npm install --prefix frontend && npm run build --prefix frontend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
   }
 }
