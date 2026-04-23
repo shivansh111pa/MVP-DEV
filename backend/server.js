@@ -10,6 +10,7 @@
 
 const express = require("express");
 const cors = require("cors");
+const serverless = require("serverless-http");
 
 const { developerData, pullRequests, issues, deployments, bugs } = require("./data/mockData");
 const {
@@ -35,7 +36,7 @@ app.use(cors());
 app.use(express.json());
 
 // Root route - health check/welcome
-app.get("/", (req, res) => {
+app.get("/api/", (req, res) => {
   res.send(`
     <div style="font-family: sans-serif; padding: 40px; line-height: 1.6;">
       <h1 style="color: #3b82f6;">⚡ DevPulse API is Running</h1>
@@ -45,7 +46,7 @@ app.get("/", (req, res) => {
         <li>?? <strong>Team API:</strong> <a href="/api/team">/api/team</a></li>
       </ul>
       <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-      <p style="font-size: 0.9em; color: #666;">Open your frontend at <strong>http://localhost:3000</strong> to see the dashboard.</p>
+      <p style="font-size: 0.9em; color: #666;">Open your frontend to see the dashboard.</p>
     </div>
   `);
 });
@@ -154,8 +155,13 @@ app.get("/api/team", (req, res) => {
   res.json(teamSummary);
 });
 
-app.listen(PORT, () => {
-  console.log(`✅ DevPulse backend running at http://localhost:${PORT}`);
-  console.log(`   → Developer API: http://localhost:${PORT}/api/developer`);
-  console.log(`   → Team API:      http://localhost:${PORT}/api/team`);
-});
+// For local development
+if (process.env.NODE_ENV !== "production") {
+  app.listen(PORT, () => {
+    console.log(`✅ DevPulse backend running locally at http://localhost:${PORT}`);
+  });
+}
+
+// Export for Netlify Functions
+module.exports.handler = serverless(app);
+
