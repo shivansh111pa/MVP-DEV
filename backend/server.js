@@ -162,12 +162,22 @@ apiRouter.get("/team", (req, res) => {
 app.use("/api", apiRouter);
 app.use("/.netlify/functions/server/api", apiRouter);
 
-// Serve static frontend in production
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../frontend/build")));
+// Serve static frontend
+const frontendPath = path.join(__dirname, "../frontend/build");
+const fs = require("fs");
+
+if (fs.existsSync(frontendPath)) {
+  console.log("Serving static files from:", frontendPath);
+  app.use(express.static(frontendPath));
 
   app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend/build", "index.html"));
+    res.sendFile(path.join(frontendPath, "index.html"));
+  });
+} else {
+  console.log("Static frontend build not found at:", frontendPath);
+  // Optional: Add a simple landing page if nothing else exists
+  app.get("/", (req, res) => {
+    res.send("<h1>DevPulse Backend is Running</h1><p>Frontend build not found. Did you run 'npm run build'?</p>");
   });
 }
 
