@@ -10,7 +10,7 @@
 
 const express = require("express");
 const cors = require("cors");
-const serverless = require("serverless-http");
+const path = require("path");
 
 const { developerData, pullRequests, issues, deployments, bugs } = require("./data/mockData");
 const {
@@ -29,7 +29,7 @@ const {
 } = require("./utils/interpretationEngine");
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 // Allow React dev server (port 3000) to call this backend
 app.use(cors());
@@ -155,13 +155,16 @@ app.get("/api/team", (req, res) => {
   res.json(teamSummary);
 });
 
-// For local development
-if (process.env.NODE_ENV !== "production") {
-  app.listen(PORT, () => {
-    console.log(`✅ DevPulse backend running locally at http://localhost:${PORT}`);
+// Serve static frontend in production
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../frontend/build")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/build", "index.html"));
   });
 }
 
-// Export for Netlify Functions
-module.exports.handler = serverless(app);
+app.listen(PORT, () => {
+  console.log(`✅ DevPulse backend running on port ${PORT}`);
+});
 
