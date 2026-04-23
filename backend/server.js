@@ -171,9 +171,11 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-app.listen(PORT, () => {
-  console.log(`✅ DevPulse backend running on port ${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`✅ DevPulse backend running on port ${PORT}`);
+  });
+}
 
 // Export for serverless environments (like Netlify)
 module.exports.handler = serverless(app);
