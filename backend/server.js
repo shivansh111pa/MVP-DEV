@@ -36,8 +36,10 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
+const apiRouter = express.Router();
+
 // Root route - health check/welcome
-app.get("/api/", (req, res) => {
+apiRouter.get("/", (req, res) => {
   res.send(`
     <div style="font-family: sans-serif; padding: 40px; line-height: 1.6;">
       <h1 style="color: #3b82f6;">⚡ DevPulse API is Running</h1>
@@ -56,7 +58,7 @@ app.get("/api/", (req, res) => {
  * GET /api/developer
  * Returns developer profile + all 5 metrics with values, status, interpretation, and suggestions
  */
-app.get("/api/developer", (req, res) => {
+apiRouter.get("/developer", (req, res) => {
   // Step 1: Calculate raw metric values
   const leadTime = calculateLeadTime(pullRequests);
   const cycleTime = calculateCycleTime(issues);
@@ -137,7 +139,7 @@ app.get("/api/developer", (req, res) => {
  * GET /api/team
  * Bonus: lightweight manager summary with mock team data
  */
-app.get("/api/team", (req, res) => {
+apiRouter.get("/team", (req, res) => {
   const teamSummary = {
     teamName: "Platform Engineering",
     month: "June 2025",
@@ -155,6 +157,10 @@ app.get("/api/team", (req, res) => {
 
   res.json(teamSummary);
 });
+
+// Mount router
+app.use("/api", apiRouter);
+app.use("/.netlify/functions/server/api", apiRouter);
 
 // Serve static frontend in production
 if (process.env.NODE_ENV === "production") {
